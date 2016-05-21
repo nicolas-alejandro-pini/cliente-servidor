@@ -10,8 +10,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "socket_tcp.h"
 
 int main(void) {
-	puts("ServerTCP"); /* prints  */
+	int sockfd = 0;
+	t_server server;
+	create_server(&server, 5001, 0);
+	listen_server(&server, 0);
+	sockfd = accept_server(&server);
+
+	printf("sockfd %d", sockfd);
+	disconnect_server(&server);
 	return EXIT_SUCCESS;
 }

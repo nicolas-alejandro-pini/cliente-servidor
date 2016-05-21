@@ -3,6 +3,7 @@
 	<name>serverTCP</name>
 	<comment></comment>
 	<projects>
+		<project>socket_tcp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

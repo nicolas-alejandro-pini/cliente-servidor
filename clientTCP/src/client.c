@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <socket_tcp.h>
+#include "socket_tcp.h"
 
 int main(int argc, char* argv[])
 {
@@ -12,11 +12,11 @@ int main(int argc, char* argv[])
   }
 
   if(argc >= 2) {
-	  setHostByName(&client, argv[1]);
+	  setPortDest(&client, argv[1]);
   }
 
   if(argc == 3) {
-	  setPortDest(&client, argv[2]);
+	  setHostByName(&client, argv[2]);
   }
 
   if(connect_client(&client)){
@@ -26,8 +26,7 @@ int main(int argc, char* argv[])
   printf("Connected");
 
   disconnect_client(&client);
-  //printf("Connecting to host name [%s] ...\n", h->h_name);
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 

@@ -1,35 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "socket_tcp.h"
+#include <socket_tcp.h>
 
 int main(int argc, char* argv[])
 {
-  t_client client;
-  stUMCConfig umcConfig = malloc(sizeof(stUMCConfig));
+  stUMCConfig2 umcConfig;
+  t_client *client = NULL;
 
-  if(create_client(&client)){
+  umcConfig.paginasXProceso = 4;
+  umcConfig.tamanioPagina = 6000;
+
+  if(create_client(client)){
 	  perror("Al crear cliente");
 	  return EXIT_FAILURE;
   }
 
   if(argc >= 2) {
-	  setPortDest(&client, argv[1]);
+	  setPortDest(client, argv[1]);
   }
 
   if(argc == 3) {
-	  setHostByName(&client, argv[2]);
+	  setHostByName(client, argv[2]);
   }
 
-  if(connect_client(&client)){
+  if(connect_client(client)){
 	  perror("Al conectar cliente");
 	  return EXIT_FAILURE;
   }
 
-  //send(client.pSockfd, umcConfig, sizeof(stUMCConfig), 0);
+  send(*(client->pSockfd), &umcConfig, sizeof(stUMCConfig2), 0);
 
   printf("Connected");
 
-  disconnect_client(&client);
+  disconnect_client(client);
   return EXIT_SUCCESS;
 }
 

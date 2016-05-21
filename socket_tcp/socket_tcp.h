@@ -37,6 +37,12 @@ typedef struct {
 	int numfds;
 }t_server;
 
+typedef struct{
+	int paginasXProceso;
+	int tamanioPagina;
+//} __attribute__((packed))stUMCConfig;
+} stUMCConfig;
+
 /* primitivas cliente */
 int create_client(t_client *tClient);
 int connect_client(t_client *tClient);

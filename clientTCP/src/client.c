@@ -5,6 +5,7 @@
 int main(int argc, char* argv[])
 {
   t_client client;
+  stUMCConfig umcConfig = malloc(sizeof(stUMCConfig));
 
   if(create_client(&client)){
 	  perror("Al crear cliente");
@@ -23,6 +24,9 @@ int main(int argc, char* argv[])
 	  perror("Al conectar cliente");
 	  return EXIT_FAILURE;
   }
+
+  //send(client.pSockfd, umcConfig, sizeof(stUMCConfig), 0);
+
   printf("Connected");
 
   disconnect_client(&client);

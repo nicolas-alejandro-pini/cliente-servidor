@@ -14,8 +14,9 @@
 
 int main(void) {
 
-	int sockfd = 0;
 	stUMCConfig2 UMCConfig;
+	int sockfd = 0;
+
 	t_server server;
 	create_server(&server, 5001, 0);
 	listen_server(&server, 0);

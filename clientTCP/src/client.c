@@ -5,34 +5,34 @@
 int main(int argc, char* argv[])
 {
   stUMCConfig2 umcConfig;
-  t_client *client = NULL;
+  t_client client;
 
   umcConfig.paginasXProceso = 4;
   umcConfig.tamanioPagina = 6000;
 
-  if(create_client(client)){
+  if(create_client(&client)){
 	  perror("Al crear cliente");
 	  return EXIT_FAILURE;
   }
 
   if(argc >= 2) {
-	  setPortDest(client, argv[1]);
+	  setPortDest(&client, argv[1]);
   }
 
   if(argc == 3) {
-	  setHostByName(client, argv[2]);
+	  setHostByName(&client, argv[2]);
   }
 
-  if(connect_client(client)){
+  if(connect_client(&client)){
 	  perror("Al conectar cliente");
 	  return EXIT_FAILURE;
   }
-
-  send(*(client->pSockfd), &umcConfig, sizeof(stUMCConfig2), 0);
+  printf("socket %d", *(client.pSockfd));
+  send(*(client.pSockfd), &umcConfig, sizeof(stUMCConfig2), 0);
 
   printf("Connected");
 
-  disconnect_client(client);
+  disconnect_client(&client);
   return EXIT_SUCCESS;
 }
 

@@ -24,8 +24,7 @@
 typedef struct{
 	int paginasXProceso;
 	int tamanioPagina;
-//} __attribute__((packed))stUMCConfig;
-} stUMCConfig2;
+} __attribute__((packed))stUMCConfig2;
 
 typedef struct {
 	int *pSockfd;

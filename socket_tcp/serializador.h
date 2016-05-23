@@ -13,11 +13,14 @@
 
 
 
-typedef int16_t t_stream;
+typedef uint16_t t_htons;
+typedef uint32_t t_htonl;
+typedef uint16_t t_stream;
+
 
 typedef struct{
-	t_stream type;
-	t_stream length;
+	t_htons type;
+	t_htonl length;
 } __attribute__ ((__packed__)) t_header;
 
 typedef struct{
@@ -32,8 +35,8 @@ typedef struct{
 } t_UMCConfig;
 
 /** Primitivas de la lib **/
-void serializarHeader(const t_header header, int32_t *offset, t_stream *stream);
-void deserializarHeader(const t_stream *datos, int32_t *offset, t_header *header);
+int32_t serializarHeader(const t_header header, t_stream *stream);
+void deserializarHeader(const t_header *buf_header, int32_t *offset, t_header *header);
 int enviarPaquete(int sockfd, t_paquete *paquete);
 int recibirPaquete(int sockfd, t_paquete *paquete);
 int recibirHeader(int sockfd, t_header *header);

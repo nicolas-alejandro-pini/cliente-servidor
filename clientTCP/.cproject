@@ -37,7 +37,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1005518268" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.paths.1145972767" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/socket_tcp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/socket_tcp/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.585088318" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="socket_tcp"/>

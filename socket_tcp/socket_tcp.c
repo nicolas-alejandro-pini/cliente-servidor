@@ -89,6 +89,7 @@ int setPortDest(t_client *tClient, char *string){
 
 /*************** Servidor con select (sin connect) *************/
 int create_server(t_server *tServer, int port, void* addr){
+	int yes = 1;
 
 	if(!(tServer))
 		return EXIT_FAILURE;
@@ -104,6 +105,10 @@ int create_server(t_server *tServer, int port, void* addr){
 	if((*(tServer->pSockfdListener) = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Al generar socket listener");
+		return EXIT_FAILURE;
+	}
+	if((setsockopt(*(tServer->pSockfdListener), SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) == -1){
+		perror("Al liberar puerto. setsockopt");
 		return EXIT_FAILURE;
 	}
 

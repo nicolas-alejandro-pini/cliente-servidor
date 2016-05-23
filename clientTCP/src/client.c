@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <socket_tcp.h>
+#include <serializador.h>
 
 int main(int argc, char* argv[])
 {
-  stUMCConfig2 umcConfig;
+  t_UMCConfig umcConfig;
   t_client client;
+  t_paquete paquete;
 
   umcConfig.paginasXProceso = 4;
   umcConfig.tamanioPagina = 6000;
@@ -28,8 +30,10 @@ int main(int argc, char* argv[])
 	  return EXIT_FAILURE;
   }
   printf("socket %d", *(client.pSockfd));
-  send(*(client.pSockfd), &umcConfig, sizeof(stUMCConfig2), 0);
+  //send(*(client.pSockfd), &umcConfig, sizeof(t_UMCConfig), 0);
 
+  serializarConfigUMC(&paquete, &umcConfig);
+  enviarPaquete(*(client.pSockfd), &paquete);
   printf("Connected");
 
   disconnect_client(&client);

@@ -20,6 +20,10 @@ void crear_paquete(t_paquete *paquete, int type){
 	paquete->data= malloc(sizeof(t_header));
 }
 
+void free_paquete(t_paquete *paquete){
+	free(paquete->data);
+}
+
 int obtener_paquete_type(t_paquete *paquete){
 	return paquete->header.type;
 }
@@ -170,28 +174,75 @@ int32_t deserializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int
 	return ((paquete->header.length/sizeof(t_buffer)) - (*offset)*sizeof(t_buffer));
 }
 
-void free_paquete(t_paquete *paquete){
-	free(paquete->data);
+
+int32_t deserializar_lista(t_paquete *paquete, int32_t *offset, t_list *lista, int32_t size_struct){
+	int32_t i,bytes_left, max_list;
+	void *elem = malloc(size_struct);
+
+	// Calculo bytes restantes del buffer. LA LISTA DEBE IR AL FINAL DEL PAQUETE.
+	// para saber cuantos nodos tengo en la lista.
+	bytes_left = ((paquete->header.length/sizeof(t_buffer)) - (*offset)*sizeof(t_buffer));
+	max_list = bytes_left / size_struct;
+
+	for(i=0; i < max_list; i++)
+	{
+		deserializar_campo(paquete, offset, elem, size_struct);
+		list_add(lista, elem);
+	}
+
+	// este valor debe dar 0 bytes left
+	return ((paquete->header.length/sizeof(t_buffer)) - (*offset)*sizeof(t_buffer));
 }
 
+int32_t* serializar_lista(t_paquete *paquete, int32_t *offset, t_list *lista, int32_t size_struct)
+{
+	int32_t i,max_list;
+	void *elem = NULL;
 
-
+	max_list = list_size(lista);
+	for(i=0; i < max_list; i++)
+	{
+		elem = list_get(lista,i);
+		serializar_campo(paquete, offset, elem, size_struct);
+	}
+	return offset;
+}
 
 
 
 /************* funciones especificas ********************/
 
 int serializar_ejemplo(t_paquete *paquete, t_UMCConfig *self){
-	int32_t offset = 0;
 	uint32_t numero32 = 777;
 	uint16_t numero16 = 243;
+	t_list *lista = list_create();
 
+	// lista cargada con 10 veces la estructura t_UMCConfig
+	int i;
+	for(i=0; i < 10; i++)
+		list_add(lista, self);
+
+
+	// Iniciar en 0
+	int32_t offset = 0;
+
+	// Serializo int de 8 bytes y 4 bytes
 	serializar_campo(paquete, &offset, &numero32, sizeof(numero32));
 	serializar_campo(paquete, &offset, &numero16, sizeof(numero16));
 	serializar_campo(paquete, &offset, &(self->paginasXProceso), sizeof(self->paginasXProceso));
 	serializar_campo(paquete, &offset, &(self->tamanioPagina), sizeof(self->tamanioPagina));
+
+	// Serializo la estructura t_UMCConfig , debe tener el __attribute__((packed))
 	serializar_campo(paquete, &offset, self, sizeof(t_UMCConfig));
+
+	// Serializo lista
+	serializar_lista(paquete, &offset, lista, sizeof(t_UMCConfig));
+
+	// Serializar el header despues de agregar todos los campos (porque actualiza header.length)
 	serializar_header(paquete);
+
+	list_destroy(lista);
+
 	return offset;
 }
 
@@ -200,11 +251,22 @@ int deserializar_ejemplo(t_UMCConfig *self, t_paquete *paquete){
 	t_UMCConfig self2;
 	uint32_t numero32;
 	uint16_t numero16;
+	t_list *lista = list_create();
+
 	deserializar_campo(paquete, &offset, &numero32, sizeof(numero32));
 	deserializar_campo(paquete, &offset, &numero16, sizeof(numero16));
 	deserializar_campo(paquete, &offset, &(self->paginasXProceso), sizeof(self->paginasXProceso));
 	deserializar_campo(paquete, &offset, &(self->tamanioPagina), sizeof(self->tamanioPagina));
 	deserializar_campo(paquete, &offset, &self2, sizeof(t_UMCConfig));
+
+	deserializar_lista(paquete, &offset, lista, sizeof(t_UMCConfig));
+
+	// chequeo que esten todos los nodos
+	int32_t cant = list_size(lista);
+	printf("cant %d", cant);
+	self = list_get(lista,7);
+	list_destroy(lista);
+
 	return EXIT_SUCCESS;
 }
 

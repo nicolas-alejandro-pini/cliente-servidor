@@ -8,6 +8,9 @@
 #ifndef SERIALIZADOR_H_
 #define SERIALIZADOR_H_
 
+// para pruebas con listas
+#include <commons/collections/list.h>
+
 #define CONNECTION_CLOSED 0
 #define BROKENPIPE 1
 #define CONFIG_UMC 2
@@ -28,12 +31,13 @@ typedef struct{
 typedef struct{
 	int paginasXProceso;
 	int tamanioPagina;
-//} __attribute__((packed)) t_UMCConfig;
-} t_UMCConfig;
+} __attribute__((packed)) t_UMCConfig;
+
 
 /** Primitivas del cliente **/
 void crear_paquete(t_paquete *paquete, int type);
 int32_t* serializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int32_t size);
+int32_t* serializar_lista(t_paquete *paquete, int32_t *offset, t_list *lista, int32_t size_struct);
 void serializar_header(t_paquete *paquete);
 int enviar_paquete(int sockfd, t_paquete *paquete);
 
@@ -41,6 +45,7 @@ int enviar_paquete(int sockfd, t_paquete *paquete);
 int recibir_paquete(int sockfd, t_paquete *paquete);
 int obtener_paquete_type(t_paquete *paquete);
 int32_t deserializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int32_t size);
+int32_t deserializar_lista(t_paquete *paquete, int32_t *offset, t_list *lista, int32_t size_struct);
 
 /** Primitivas comunes **/
 void free_paquete(t_paquete *paquete);

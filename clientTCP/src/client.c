@@ -32,8 +32,12 @@ int main(int argc, char* argv[])
   printf("socket %d", *(client.pSockfd));
   //send(*(client.pSockfd), &umcConfig, sizeof(t_UMCConfig), 0);
 
+	// Reserva memoria para header + datos
+
+  crear_paquete(&paquete, CONFIG_UMC);
   serializarConfigUMC(&paquete, &umcConfig);
-  enviarPaquete(*(client.pSockfd), &paquete);
+  enviar_paquete(*(client.pSockfd), &paquete);
+  free_paquete(&paquete);
   printf("Connected");
 
   disconnect_client(&client);

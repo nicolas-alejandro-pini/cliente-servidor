@@ -17,6 +17,7 @@ int main(void) {
 
 	t_UMCConfig UMCConfig;
 	t_paquete paquete;
+	int reintento = 1;
 	int sockfd = 0;
 
 	t_server server;
@@ -24,11 +25,27 @@ int main(void) {
 	listen_server(&server, 0);
 	sockfd = accept_server(&server);
 
-	printf("sockfd %d\n", sockfd);
 	//recv(sockfd, &UMCConfig, sizeof(t_UMCConfig), 0);
 
-	recibirPaquete(sockfd, &paquete);
-	deserializarConfigUMC(&UMCConfig, &paquete);
+	while(reintento)
+	{
+		int type = 0;
+		recibir_paquete(sockfd, &paquete);
+		type = obtener_paquete_type(&paquete);
+
+		switch(type){
+		case CONFIG_UMC:
+						deserializarConfigUMC(&UMCConfig, &paquete);
+						reintento = 0;
+						break;
+		case CONNECTION_CLOSED:
+
+						reintento = 1;
+						break;
+		}
+	}
+
+	free_paquete(&paquete);
 	disconnect_server(&server);
 	return EXIT_SUCCESS;
 }

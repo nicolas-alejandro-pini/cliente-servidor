@@ -9,23 +9,20 @@
 #define SERIALIZADOR_H_
 
 #define CONNECTION_CLOSED 0
-#define CONFIG_UMC 1
+#define BROKENPIPE 1
+#define CONFIG_UMC 2
 
 
-
-typedef uint16_t t_htons;
-typedef uint32_t t_htonl;
-typedef uint16_t t_stream;
-
+typedef uint16_t t_buffer;
 
 typedef struct{
-	t_htons type;
-	t_htonl length;
+	uint16_t type;
+	uint32_t length;
 } __attribute__ ((__packed__)) t_header;
 
 typedef struct{
 	t_header header;
-	t_stream *data;
+	t_buffer *data;
 }  t_paquete;
 
 typedef struct{
@@ -34,12 +31,19 @@ typedef struct{
 //} __attribute__((packed)) t_UMCConfig;
 } t_UMCConfig;
 
-/** Primitivas de la lib **/
-int32_t serializarHeader(const t_header header, t_stream *stream);
-void deserializarHeader(const t_header *buf_header, int32_t *offset, t_header *header);
-int enviarPaquete(int sockfd, t_paquete *paquete);
-int recibirPaquete(int sockfd, t_paquete *paquete);
-int recibirHeader(int sockfd, t_header *header);
+/** Primitivas del cliente **/
+void crear_paquete(t_paquete *paquete, int type);
+int32_t* serializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int32_t size);
+void serializar_header(t_paquete *paquete);
+int enviar_paquete(int sockfd, t_paquete *paquete);
+
+/** Primitivas del servidor **/
+int recibir_paquete(int sockfd, t_paquete *paquete);
+int obtener_paquete_type(t_paquete *paquete);
+int32_t deserializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int32_t size);
+
+/** Primitivas comunes **/
+void free_paquete(t_paquete *paquete);
 
 /** Estructuras especificas **/
 int serializarConfigUMC(t_paquete *paquete, t_UMCConfig *self);

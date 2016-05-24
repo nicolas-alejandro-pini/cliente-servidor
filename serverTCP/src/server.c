@@ -35,7 +35,7 @@ int main(void) {
 
 		switch(type){
 		case CONFIG_UMC:
-						deserializarConfigUMC(&UMCConfig, &paquete);
+						deserializar_ejemplo(&UMCConfig, &paquete);
 						reintento = 0;
 						break;
 		case CONNECTION_CLOSED:

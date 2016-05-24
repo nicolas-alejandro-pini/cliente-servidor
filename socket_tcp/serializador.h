@@ -13,11 +13,11 @@
 #define CONFIG_UMC 2
 
 
-typedef uint16_t t_buffer;
+typedef uint8_t t_buffer;
 
 typedef struct{
-	uint16_t type;
-	uint32_t length;
+	uint8_t type;
+	uint16_t length;
 } __attribute__ ((__packed__)) t_header;
 
 typedef struct{
@@ -44,9 +44,11 @@ int32_t deserializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int
 
 /** Primitivas comunes **/
 void free_paquete(t_paquete *paquete);
+void deserializar_header(t_header *buf_header, int32_t *offset, t_header *header);
+int recibir_header(int sockfd, t_header *header);
 
 /** Estructuras especificas **/
-int serializarConfigUMC(t_paquete *paquete, t_UMCConfig *self);
-int deserializarConfigUMC(t_UMCConfig *self, t_paquete *paquete);
+int serializar_ejemplo(t_paquete *paquete, t_UMCConfig *self);
+int deserializar_ejemplo(t_UMCConfig *self, t_paquete *paquete);
 
 #endif /* SERIALIZADOR_H_ */

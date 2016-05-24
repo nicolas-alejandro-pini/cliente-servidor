@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	// Reserva memoria para header + datos
 
   crear_paquete(&paquete, CONFIG_UMC);
-  serializarConfigUMC(&paquete, &umcConfig);
+  serializar_ejemplo(&paquete, &umcConfig);
   enviar_paquete(*(client.pSockfd), &paquete);
   free_paquete(&paquete);
   printf("Connected");

@@ -91,8 +91,8 @@ void serializar_header(t_paquete *paquete){
 	int32_t offset_ = 0, tmp_size = 0;
 
 	// Ordenacion de bytes de red
-	header_net.type = htons(paquete->header.type);
-	header_net.length = htonl(paquete->header.length);
+	header_net.type = paquete->header.type;   // htons(paquete->header.type); // para uint16_t
+	header_net.length = htons(paquete->header.length);  //htonl(paquete->header.length); // para uint32_t
 
 	// Copio header en buffer
 	offset_ = 0;
@@ -103,8 +103,8 @@ void serializar_header(t_paquete *paquete){
 
 void deserializar_header(t_header *buf_header, int32_t *offset, t_header *header){
 	t_header header_host;
-	header_host.type = ntohs(buf_header->type);
-	header_host.length = ntohl(buf_header->length);
+	header_host.type = buf_header->type; //ntohs(buf_header->type); // para uint16_t
+	header_host.length = ntohs(buf_header->length); //ntohl(buf_header->length); // para uint32_t
 	memcpy(&(header->type), &(header_host.type) , sizeof(header_host.type));
 	memcpy(&(header->length), &(header_host.length), sizeof(header_host.length));
 }
@@ -122,19 +122,24 @@ int32_t* serializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int3
 	paquete->header.length += size;
 	printf("header length [%d]", paquete->header.length);
 
-	if(size == sizeof(uint16_t))
-	{
-		memcpy(&buffer_host, campo, size);
-		buffer_net = htons(buffer_host);
-		memcpy(paquete->data + size_header + (*offset), &buffer_net, size);
-		*offset += size / sizeof(t_buffer);
-	}
-	if(size == sizeof(uint32_t))
-	{
-		memcpy(&buffer_host32, campo, size);
-		buffer_net32 = htonl(buffer_host32);
-		memcpy(paquete->data + size_header + (*offset), &buffer_net32, size);
-		*offset += size / sizeof(t_buffer);
+	switch(size){
+		case sizeof(uint16_t):
+			memcpy(&buffer_host, campo, size);
+			buffer_net = htons(buffer_host);
+			memcpy(paquete->data + size_header + (*offset), &buffer_net, size);
+			*offset += size / sizeof(t_buffer);
+			break;
+		case sizeof(uint32_t):
+			memcpy(&buffer_host32, campo, size);
+			buffer_net32 = htonl(buffer_host32);
+			memcpy(paquete->data + size_header + (*offset), &buffer_net32, size);
+			*offset += size / sizeof(t_buffer);
+			break;
+		default:
+			// si es una estructura debe llevar el __attribute__((packed))
+			memcpy(paquete->data + size_header + (*offset), campo, size);
+			*offset += size / sizeof(t_buffer);
+			break;
 	}
 	return offset;
 }
@@ -143,20 +148,25 @@ int32_t deserializar_campo(t_paquete *paquete, int32_t *offset, void *campo, int
 	uint16_t buffer_net, buffer_host;
 	uint32_t buffer_net32, buffer_host32;
 
-	if(size == sizeof(uint16_t))
-	{
-		memcpy(&buffer_net, paquete->data + (*offset), size);
-		buffer_host = ntohs(buffer_net);
-		memcpy(campo, &buffer_host, size);
-		*offset += size / sizeof(t_buffer);
+	switch(size){
+		case sizeof(uint16_t):
+			memcpy(&buffer_net, paquete->data + (*offset), size);
+			buffer_host = ntohs(buffer_net);
+			memcpy(campo, &buffer_host, size);
+			*offset += size / sizeof(t_buffer);
+			break;
+		case sizeof(uint32_t):
+			memcpy(&buffer_net32, paquete->data + (*offset), size);
+			buffer_host32 = ntohl(buffer_net32);
+			memcpy(campo, &buffer_host32, size);
+			*offset += size / sizeof(t_buffer);
+			break;
+		default:
+			// si es una estructura debe llevar el __attribute__((packed))
+			memcpy(campo, paquete->data + (*offset), size);
+			*offset += size / sizeof(t_buffer);
 	}
-	if(size == sizeof(uint32_t))
-	{
-		memcpy(&buffer_net32, paquete->data + (*offset), size);
-		buffer_host32 = ntohl(buffer_net32);
-		memcpy(campo, &buffer_host32, size);
-		*offset += size / sizeof(t_buffer);
-	}
+	// offset restante por deserializar
 	return ((paquete->header.length/sizeof(t_buffer)) - (*offset)*sizeof(t_buffer));
 }
 
@@ -171,23 +181,30 @@ void free_paquete(t_paquete *paquete){
 
 /************* funciones especificas ********************/
 
-int serializarConfigUMC(t_paquete *paquete, t_UMCConfig *self){
+int serializar_ejemplo(t_paquete *paquete, t_UMCConfig *self){
 	int32_t offset = 0;
-	uint32_t numero = 777;
+	uint32_t numero32 = 777;
+	uint16_t numero16 = 243;
 
-	serializar_campo(paquete, &offset, &numero, sizeof(numero));
+	serializar_campo(paquete, &offset, &numero32, sizeof(numero32));
+	serializar_campo(paquete, &offset, &numero16, sizeof(numero16));
 	serializar_campo(paquete, &offset, &(self->paginasXProceso), sizeof(self->paginasXProceso));
 	serializar_campo(paquete, &offset, &(self->tamanioPagina), sizeof(self->tamanioPagina));
+	serializar_campo(paquete, &offset, self, sizeof(t_UMCConfig));
 	serializar_header(paquete);
 	return offset;
 }
 
-int deserializarConfigUMC(t_UMCConfig *self, t_paquete *paquete){
+int deserializar_ejemplo(t_UMCConfig *self, t_paquete *paquete){
 	int offset = 0;
-	uint32_t numero;
-	deserializar_campo(paquete, &offset, &numero, sizeof(numero));
+	t_UMCConfig self2;
+	uint32_t numero32;
+	uint16_t numero16;
+	deserializar_campo(paquete, &offset, &numero32, sizeof(numero32));
+	deserializar_campo(paquete, &offset, &numero16, sizeof(numero16));
 	deserializar_campo(paquete, &offset, &(self->paginasXProceso), sizeof(self->paginasXProceso));
 	deserializar_campo(paquete, &offset, &(self->tamanioPagina), sizeof(self->tamanioPagina));
+	deserializar_campo(paquete, &offset, &self2, sizeof(t_UMCConfig));
 	return EXIT_SUCCESS;
 }
 

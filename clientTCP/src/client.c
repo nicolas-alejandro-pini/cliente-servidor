@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <socket_tcp.h>
 #include <serializador.h>
+#include "test_client.h"
 
 int main(int argc, char* argv[])
 {
@@ -11,6 +12,10 @@ int main(int argc, char* argv[])
 
   umcConfig.paginasXProceso = 4;
   umcConfig.tamanioPagina = 6000;
+
+  if(strcmp(argv[1], "--cunit") == 0){
+	  test_unit();
+  }
 
   if(create_client(&client)){
 	  perror("Al crear cliente");

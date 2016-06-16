@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <socket_tcp.h>
 #include <serializador.h>
-#include "test_client.h"
+#include "tests/test_client.h"
 
 int main(int argc, char* argv[])
 {

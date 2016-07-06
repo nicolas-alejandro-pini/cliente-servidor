@@ -25,17 +25,18 @@ void test_thread_join(){
 void test_thread_detached(){
 	pthread_attr_t attr;
 	pthread_t threads[5];
+	pthread_mutex_t mutex;
 	int i;
-	char *msg[] = { "Soy el Thread 1!", "Soy el Thread 2!", "Soy el Thread 3!", "Soy el Thread 4!",
-			        "Soy el Thread 5!"};
-
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_mutex_init(&mutex, NULL);
 
 	for( i=0; i<5; i++)
-		if( pthread_create(&threads[i], NULL, (void*)&start_routine_example, msg[i])){
+		if( pthread_create(&threads[i], NULL, (void*) &start_routine_example, &mutex)){
 			perror("Ocurrio un error durante la creacion del Thread.");
 		}
 
-	pthread_attr_destroy(&attr);
+	//pthread_attr_destroy(&attr);
+	for( i=0; i<5; i++)
+		pthread_join(threads[i], NULL);
 }

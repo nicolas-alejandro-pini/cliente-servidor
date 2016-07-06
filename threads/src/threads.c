@@ -24,7 +24,12 @@ int main(int argc, char* argv[]) {
 	return EXIT_SUCCESS;
 }
 
-void start_routine_example(void *arg){
-	char *msg = (char*) arg;
-	printf("Thread ID: [%u] | %s\n", (unsigned int)pthread_self(), msg);
+void* start_routine_example(void *arg){
+	pthread_mutex_t *mutex = (pthread_mutex_t*) arg;
+
+	pthread_mutex_lock(mutex);
+	printf("Thread ID: [%u]\n", (unsigned int)pthread_self());
+	pthread_mutex_unlock(mutex);
+
+	pthread_exit(NULL);
 }

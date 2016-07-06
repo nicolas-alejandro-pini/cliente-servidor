@@ -8,6 +8,6 @@
 #ifndef THREADS_H_
 #define THREADS_H_
 
-void start_routine_example(void *arg);
+void* start_routine_example(void *arg);
 
 #endif /* THREADS_H_ */
